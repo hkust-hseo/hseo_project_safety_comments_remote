@@ -36,7 +36,7 @@
     initMail($mail, director_email);
 
     // variables
-    $memo_url = "143.89.148.116/hseo_project_safety_comments_local/pending_memo.php";    // URL of pending memo page
+    $memo_url = "143.89.195.131/hseo_project_safety_comments/pending_memo.php";    // URL of pending memo page
 
     $mail->Subject = "Pending Memos";
 
@@ -54,7 +54,7 @@
       $mail->Body .= $ref_array[$i]."<br/>";
     }
 
-    $mail->Body .= "<br/>Please head to:<br/>";
+    $mail->Body .= "<br/>Please visit the following link: <br/>";
     $mail->Body .= "<a href='".$memo_url."'>".$memo_url."</a>";   // HTML mail version (link)
     $mail->Body .= "<br/>for further actions.<br/><br/>";
 
@@ -74,7 +74,7 @@
       $mail->AltBody .= $ref_array[$i]."\n";
     }
 
-    $mail->AltBody .= "\nPlease head to:\n";
+    $mail->AltBody .= "\nPlease visit the following link:\n";
     $mail->AltBody .= $memo_url;        // Plain text version: non-clickable
     $mail->AltBody .= "\nfor further actions.\n\n";
     $alt_ending = str_replace("<br/>","\n", body_ending);
