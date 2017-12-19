@@ -1,28 +1,42 @@
 <?php
   require "ref/PHPMailer-master/PHPMailerAutoload.php";
 
+  // email content definitions
   define("from_address", "srapproval@ust.hk");
-  define("to_address", $receiver_email);
   define("body_ending", "Yours,<br/>System Admin");
 
-  $mail = new PHPMailer;
+  // contact definitions
+  define("director_email", "sepopcip@ust.hk");
+  define("cbe_email", "sepopcip@ust.hk");
+  define("bien_email", "sepopcip@ust.hk");
 
-  $mail->IsSMTP();
-  $mail->Host = "smtp.ust.hk";
-  $mail->Port = 587;
-  $mail->SMTPAuth = true;
-  $mail->Username = "srapproval@ust.hk";
-  $mail->Password = "srhseosr";
+  // TODO: remove this by finding a way to GET from print_memo.php
+  if(!isset($mode)){
+    $mode = $_GET['mode'];
+  }
 
-  $mail->setFrom(from_address, "System Admin");
-  $mail->addAddress(to_address);
+  function initMail($mail, $receiver_email) {
+    $mail->IsSMTP();
+    $mail->Host = "smtp.ust.hk";
+    $mail->Port = 587;
+    $mail->SMTPAuth = true;
+    $mail->Username = "srapproval@ust.hk";
+    $mail->Password = "srhseosr";
 
-  $mail->isHTML(true);
+    $mail->setFrom(from_address, "System Admin");
+    $mail->addAddress($receiver_email);
+
+    $mail->isHTML(true);
+  }
 
   // Send to HSEO Director about pending memos
   if($mode == "pending_memo") {
+    // Create mail container and header
+    $mail = new PHPMailer;
+    initMail($mail, director_email);
+
     // variables
-    $memo_url = "143.89.195.131/hseo_project_safety_comments/pending_memo.php";    // URL of pending memo page
+    $memo_url = "143.89.148.116/hseo_project_safety_comments_local/pending_memo.php";    // URL of pending memo page
 
     $mail->Subject = "Pending Memos";
 
@@ -35,12 +49,12 @@
     else {
       $mail->Body .= "workplans are ";
     }
-    $mail->Body .= "pending for your approval:<br/>";
+    $mail->Body .= "pending for your approval.<br/>";
     for($i = 0; $i < $ref_count; $i++) {
       $mail->Body .= $ref_array[$i]."<br/>";
     }
 
-    $mail->Body .= "<br/>Please visit the following link: <br/>";
+    $mail->Body .= "<br/>Please head to:<br/>";
     $mail->Body .= "<a href='".$memo_url."'>".$memo_url."</a>";   // HTML mail version (link)
     $mail->Body .= "<br/>for further actions.<br/><br/>";
 
@@ -55,12 +69,12 @@
     else {
       $mail->AltBody .= "workplans are ";
     }
-    $mail->AltBody .= "pending for your approval:\n";
+    $mail->AltBody .= "pending for your approval.\n";
     for($i = 0; $i < $ref_count; $i++) {
       $mail->AltBody .= $ref_array[$i]."\n";
     }
 
-    $mail->AltBody .= "\nPlease visit the following link: \n";
+    $mail->AltBody .= "\nPlease head to:\n";
     $mail->AltBody .= $memo_url;        // Plain text version: non-clickable
     $mail->AltBody .= "\nfor further actions.\n\n";
     $alt_ending = str_replace("<br/>","\n", body_ending);
@@ -68,18 +82,82 @@
   }
 
   if($mode == "send_memo") {
-    $files = array();
+    $mail = new PHPMailer;
+    $memo_no = $_GET['memo_no'];
+
+    require("db_connect.php");
+
+    // Get department to send email to
+    $identify_dept_query = "SELECT dept FROM proj_details WHERE memo = '$memo_no' LIMIT 1;";
+    if (mysqli_real_query($db, $identify_dept_query)) {
+      $result = mysqli_store_result($db);
+      $row = mysqli_fetch_row($result);
+      $dept = $row[0];
+    } else {
+      echo "Error accessing database. Error code: " . $mysqli->error;
+    }
+
+    // Put in corresponding receiver details
+    //  if ($dept == "CBE") {}
+    // TODO: sub out own test email
+    initMail($mail, cbe_email);
+
 
     // SQL to fetch all related file links
-    //  $fetch_memo_file = "SELECT file_link FROM memo_details WHERE memo_no = '$memo_no';";
-    //  $fetch_proj_files = "SELECT review_link FROM proj_files WHERE ref_no IN (SELECT ref_no FROM proj_details WHERE memo = '$memo_no');";
+    // memo, individual comment form
+    $fetch_memo_file_query = "SELECT file_link, memo_no FROM memo_details WHERE memo_no = '$memo_no';";
+    $fetch_proj_files_query = "SELECT review_link, ref_no FROM proj_files WHERE ref_no IN (SELECT ref_no FROM proj_details WHERE memo = '$memo_no');";
 
-    $mail->Subject = "Send memo to prof test";
+    $mail->Subject = "Review Completed: ". $memo_no;
 
-    $mail->Body = "Dear Prof.,\n\nAttached please find some files";
+    $files_count = 0;
+    $files = array();
 
-    // TODO: Add attachments
-    // $mail->addAttachment("documents/reviews/17035_review.pdf", "test_file_name");
+    // fetch and attach memo file
+    if(mysqli_real_query($db, $fetch_memo_file_query)) {
+      $result = mysqli_store_result($db);
+      $row = mysqli_fetch_row($result);
+      $files[$files_count]['path'] = $row[0];
+      $files[$files_count]['name'] = $row[1];
+      $files_count++;
+  }
+
+    // fetch and attach the list of related comment forms
+    mysqli_real_query($db, $fetch_proj_files_query);
+    // Obtain results
+    if($result = mysqli_store_result($db)) {
+      while($row = mysqli_fetch_row($result)) {
+        $files[$files_count]['path'] = $row[0];
+        $files[$files_count]['name'] = $row[1];
+        $files_count++;
+      }
+    }
+
+    // HTML email body
+    $mail->Body = "Dear Sir/Madam,<br/><br/>";  // Email content
+    $mail->Body .= "The project safety review for the following ";
+    if($files_count-1 <= 1) {
+      $mail->Body .= "project is ";
+    }
+    else {
+      $mail->Body .= "projects are ";
+    }
+    $mail->Body .= "completed.<br/>";
+    for($i = 1; $i < $files_count; $i++) {
+      $mail->Body .= $files[$i]['name']."<br/>";
+    }
+
+    $mail->Body .= "<br/>Attached please find the corresponding review forms.<br/>";
+    $mail->Body .= "Please forward them to the parties concerned.<br/><br/>";
+    $mail->Body .= body_ending;
+
+    // Plain text email body
+    // Does this work?
+    $mail->AltBody = str_replace("<br/>", "\n", $mail->Body);
+
+    for($i = 0; $i < $files_count; $i++) {
+      $mail->addAttachment($files[$i]['path'], $files[$i]['name']);
+    }
   }
 
   // Send email
@@ -87,5 +165,4 @@
     echo "Email not send<br/>";
     echo "Mailer Error: " . $mail->ErrorInfo;
   }
-
 ?>

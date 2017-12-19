@@ -48,8 +48,7 @@
 <body>
 	<header>
 	  Project Details
-	<a href = "http://143.89.195.131/hseo_project_safety_comments"><img src = "img/hkust_logo_white.png"/></a>
-
+	  <a href = "index.html"><img src = "img/hkust_logo_white.png"/></a>
 	</header>
 
   <table id="proj_details">
@@ -93,8 +92,7 @@
       <td><?php echo $details_row['extn']; ?></td>
     </tr>
     <tr>
-      <td><a target='_blank' href="<?php echo "mod_proj.php?ref_no=".$ref_no; ?>"><button>Modify Project Details</button></a></td>
-      <td><a target='_blank' href="<?php echo "proj_comment.php?ref_no=".$ref_no; ?>"><button>Project Review</button></a></td>
+      <td><a href="<?php echo "mod_proj.php?ref_no=".$ref_no; ?>"><button>Modify Project Details</button></a></td>
     </tr>
   </table>
 
