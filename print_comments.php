@@ -116,6 +116,7 @@
 			$cont_char = 0;
 			while ($char_ptr < strlen($text))
 			{
+				// TODO: take into account full words
 				$word_length = 0;
 				// new line detected
 				if ($text[$char_ptr] == "\n") {
@@ -141,13 +142,19 @@
 
 		function CommentRow($area, $comment, $pic)
 		{
-			// full text = comment with name of pic and Date
+			// full_text = comment with name of pic and Date
 			$full_text = "";
 
 			if (!empty($pic)){
-				$full_text .= "Name" . "       " . "Signature" ."        ". "Date";
+				$full_text .= "Name" . "                          ". "Date";
 				$full_text .= "\n\n";
+				$date = date('Y/m/d');
 				$full_text .= $pic;
+				// for loop to get the correct number of spaces
+				for ($i = 0; $i < 30-strlen($pic); $i++) {
+					$full_text .= " ";
+				}
+				$full_text .= $date;
 				$full_text .= "\n\n";
 			}
 
