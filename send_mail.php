@@ -6,7 +6,7 @@
   define("body_ending", "Yours,<br/>System Admin");
 
   // contact definitions
-  define("director_email", "sepopcip@ust.hk");
+  define("director_email", "joekwan@ust.hk");
   define("cbe_email", "sepopcip@ust.hk");
   define("bien_email", "sepopcip@ust.hk");
 
