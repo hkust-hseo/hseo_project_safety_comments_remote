@@ -49,7 +49,7 @@
     else {
       $mail->Body .= "workplans are ";
     }
-    $mail->Body .= "pending for your approval.<br/>";
+    $mail->Body .= "pending for your approval:<br/>";
     for($i = 0; $i < $ref_count; $i++) {
       $mail->Body .= $ref_array[$i]."<br/>";
     }
@@ -69,7 +69,7 @@
     else {
       $mail->AltBody .= "workplans are ";
     }
-    $mail->AltBody .= "pending for your approval.\n";
+    $mail->AltBody .= "pending for your approval:\n";
     for($i = 0; $i < $ref_count; $i++) {
       $mail->AltBody .= $ref_array[$i]."\n";
     }
