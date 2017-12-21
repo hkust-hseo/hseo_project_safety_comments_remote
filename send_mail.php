@@ -147,8 +147,7 @@
       $mail->Body .= $files[$i]['name']."<br/>";
     }
 
-    $mail->Body .= "<br/>Attached please find the corresponding review forms.<br/>";
-    $mail->Body .= "Please forward them to the parties concerned.<br/><br/>";
+    $mail->Body .= "<br/>Please forward the corresponding review form(s) to the parties concerned. Thank you!<br/><br/>";
     $mail->Body .= body_ending;
 
     // Plain text email body
