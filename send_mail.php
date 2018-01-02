@@ -7,8 +7,8 @@
 
   // contact definitions
   define("director_email", "joekwan@ust.hk");
-  define("cbe_email", "sepopcip@ust.hk");
-  define("bien_email", "sepopcip@ust.hk");
+  define("cbe_email", "kfyan@ust.hk");
+  define("bien_email", "kfyan@ust.hk");
 
   // TODO: remove this by finding a way to GET from print_memo.php
   if(!isset($mode)){
