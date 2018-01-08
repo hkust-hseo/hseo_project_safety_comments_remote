@@ -21,7 +21,7 @@
     $mail->Port = 587;
     $mail->SMTPAuth = true;
     $mail->Username = "srapproval@ust.hk";
-    $mail->Password = "srhseosr";
+    $mail->Password = "srapprove!HSEO";
 
     $mail->setFrom(from_address, "System Admin");
     $mail->addAddress($receiver_email);
