@@ -1,0 +1,53 @@
+Major Updates
+============
+Fix formatting errors in printing out comments in PDF form
+ - Messed up table if skipping to next page
+Add field "contact_email"
+- The email address of contact person, whom memo approved emails will be sent to.
+Add dialogue box to confirm generation of memo
+Reformat parameter passing methods involving PHP files
+
+Commit Log
+==========
+
+* Extract calling send_mail to proj_directory.js
+Basic design of memo send confirmation
+
+* Minor change in parameter passing method
+
+* Minor change in parameter passing method
+ref_no is now got via parameter passing instead of inheriting from print_memo.php
+
+* Update .gitignore to include database-related files
+
+* Extract process of updating memo details
+
+* Call memo update in database through js instead of php
+
+* Better text in confirmation pop-up
+
+* Stop tracking db_connect.php
+
+* Use class instead of id to identify text fields in comment form
+
+* Add file extensions to PDFs to be sent to dept
+
+* Fix comment table format for row that crosses page
+New format is to jump ahead to the next page first, then put the row
+
+* Add useful comments and directions
+
+* Improve update review link query to insert if ref_no does not already exist in table
+Example: no proposal is linked, therefore ref_no is not in table proj_files
+
+* Add project review button
+
+* Add contact email field in creation of new project
+
+* Add contact email field to project modifier page
+
+* Email confirmed memo notice to contact person and cc to dept rep
+
+* Minor tweeks to documentation
+
+* Fix typo
