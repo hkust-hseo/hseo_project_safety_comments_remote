@@ -41,6 +41,7 @@
 			else {
 				$this -> MultiCell(35, 10, "N/A", 0, 1);
 			}
+
 			// due_date
 			$this -> SetFont('Times', 'B', 12);
 			$this -> Cell(62, 10, "Target Review Completion Date: ", 0, 0);
@@ -130,6 +131,7 @@
 		{
 			// full_text = comment with name of pic and Date
 			$full_text = "";
+
 			if (!empty($pic)) {
 				$full_text .= "Name" . "                          ". "Date";
 				$full_text .= "\n\n";
@@ -156,6 +158,7 @@
 			$height = 5 * $height;
 			//echo "height = ".$height."\n";
 			$currentY = parent::GetY();
+
 			if($height + $currentY > $this->h - 20) {
 				// create new page and draw top table border
 				$this -> AddPage("P", "A4");
@@ -164,6 +167,7 @@
 				// resets currentY for later
 				$currentY = parent::GetY();
 			} // resume to normal insert row
+
 			$this -> MultiCell(40, 5, $area, 'B', 'C');
 			$this -> SetXY(50, $currentY);
 			if (!empty($full_text)) {

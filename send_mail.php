@@ -10,10 +10,7 @@
   define("cbe_email", "kfyan@ust.hk");
   define("bien_email", "kfyan@ust.hk");
 
-  // TODO: remove this by finding a way to GET from print_memo.php
-  if(!isset($mode)){
-    $mode = $_GET['mode'];
-  }
+  $mode = $_POST['mode'];
 
   function initMail($mail, $receiver_email) {
     $mail->IsSMTP();
@@ -31,12 +28,19 @@
 
   // Send to HSEO Director about pending memos
   if($mode == "pending_memo") {
+    // get array of ref_no
+    $ref_pass = $_POST["ref_array"];
+    $ref_array = json_decode($ref_pass, true);
+    $ref_count = 0;
+    for($ref_count = 0; !empty($ref_array[$ref_count]); $ref_count++); // count number of ref_no passed into php
+
+
     // Create mail container and header
     $mail = new PHPMailer;
     initMail($mail, director_email);
 
     // variables
-    $memo_url = "143.89.195.131/hseo_project_safety_comments/pending_memo.php";    // URL of pending memo page
+    $memo_url = "143.89.148.116/hseo_project_safety_comments_local/pending_memo.php";    // URL of pending memo page
 
     $mail->Subject = "Pending Memos";
 
@@ -49,12 +53,12 @@
     else {
       $mail->Body .= "workplans are ";
     }
-    $mail->Body .= "pending for your approval:<br/>";
+    $mail->Body .= "pending for your approval.<br/>";
     for($i = 0; $i < $ref_count; $i++) {
       $mail->Body .= $ref_array[$i]."<br/>";
     }
 
-    $mail->Body .= "<br/>Please visit the following link: <br/>";
+    $mail->Body .= "<br/>Please head to:<br/>";
     $mail->Body .= "<a href='".$memo_url."'>".$memo_url."</a>";   // HTML mail version (link)
     $mail->Body .= "<br/>for further actions.<br/><br/>";
 
@@ -69,12 +73,12 @@
     else {
       $mail->AltBody .= "workplans are ";
     }
-    $mail->AltBody .= "pending for your approval:\n";
+    $mail->AltBody .= "pending for your approval.\n";
     for($i = 0; $i < $ref_count; $i++) {
       $mail->AltBody .= $ref_array[$i]."\n";
     }
 
-    $mail->AltBody .= "\nPlease visit the following link:\n";
+    $mail->AltBody .= "\nPlease head to:\n";
     $mail->AltBody .= $memo_url;        // Plain text version: non-clickable
     $mail->AltBody .= "\nfor further actions.\n\n";
     $alt_ending = str_replace("<br/>","\n", body_ending);
@@ -83,30 +87,40 @@
 
   if($mode == "send_memo") {
     $mail = new PHPMailer;
-    $memo_no = $_GET['memo_no'];
+    $memo_no = $_POST['memo_no'];
 
     require("db_connect.php");
 
     // Get department to send email to
-    $identify_dept_query = "SELECT dept FROM proj_details WHERE memo = '$memo_no' LIMIT 1;";
+    $identify_dept_query = "SELECT dept, contact FROM proj_details WHERE memo = '$memo_no' LIMIT 1;";
     if (mysqli_real_query($db, $identify_dept_query)) {
       $result = mysqli_store_result($db);
       $row = mysqli_fetch_row($result);
       $dept = $row[0];
+      $contact = $row[1];
+      // in case of no contact email
+      if(empty($contact)) {
+        $contact = "srapproval@ust.hk";
+      }
     } else {
       echo "Error accessing database. Error code: " . $mysqli->error;
     }
-
-    // Put in corresponding receiver details
-    //  if ($dept == "CBE") {}
-    // TODO: sub out own test email
-    initMail($mail, cbe_email);
-
 
     // SQL to fetch all related file links
     // memo, individual comment form
     $fetch_memo_file_query = "SELECT file_link, memo_no FROM memo_details WHERE memo_no = '$memo_no';";
     $fetch_proj_files_query = "SELECT review_link, ref_no FROM proj_files WHERE ref_no IN (SELECT ref_no FROM proj_details WHERE memo = '$memo_no');";
+
+    // Put in corresponding receiver details
+    // send to contact person
+    initMail($mail, $contact);
+    // cc to department representative
+    if($dept == "CBE") {
+      $mail->AddCC($cbe_email);
+    }
+    else if($dept == "BIEN") {
+      $mail->AddCC($bien_email);
+    }
 
     $mail->Subject = "Review Completed: ". $memo_no;
 
@@ -147,7 +161,8 @@
       $mail->Body .= $files[$i]['name']."<br/>";
     }
 
-    $mail->Body .= "<br/>Please forward the corresponding review form(s) to the parties concerned. Thank you!<br/><br/>";
+    $mail->Body .= "<br/>Attached please find the corresponding review forms.<br/>";
+    $mail->Body .= "Please forward them to the parties concerned.<br/><br/>";
     $mail->Body .= body_ending;
 
     // Plain text email body
@@ -155,7 +170,7 @@
     $mail->AltBody = str_replace("<br/>", "\n", $mail->Body);
 
     for($i = 0; $i < $files_count; $i++) {
-      $mail->addAttachment($files[$i]['path'], $files[$i]['name']);
+      $mail->addAttachment($files[$i]['path'], $files[$i]['name'].".pdf");
     }
   }
 
