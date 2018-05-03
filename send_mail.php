@@ -10,7 +10,7 @@
   define("cbe_email", "kfyan@ust.hk");
   define("bien_email", "kfyan@ust.hk");
 
-  $mode = $_POST['mode'];
+  // $mode = $_POST['mode'];
 
   function initMail($mail, $receiver_email) {
     $mail->IsSMTP();
@@ -40,7 +40,7 @@
     initMail($mail, director_email);
 
     // variables
-    $memo_url = "143.89.148.116/hseo_project_safety_comments_local/pending_memo.php";    // URL of pending memo page
+    $memo_url = "143.89.195.131/hseo_project_safety_comments/pending_memo.php";    // URL of pending memo page
 
     $mail->Subject = "Pending Memos";
 
