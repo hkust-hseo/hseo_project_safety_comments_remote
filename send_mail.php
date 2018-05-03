@@ -40,7 +40,7 @@
     initMail($mail, director_email);
 
     // variables
-    $memo_url = "143.89.148.116/hseo_project_safety_comments_local/pending_memo.php";    // URL of pending memo page
+    $memo_url = "143.89.195.131/hseo_project_safety_comments/pending_memo.php";    // URL of pending memo page
 
     $mail->Subject = "Pending Memos";
 
@@ -106,10 +106,12 @@
       echo "Error accessing database. Error code: " . $mysqli->error;
     }
 
+
     // SQL to fetch all related file links
     // memo, individual comment form
     $fetch_memo_file_query = "SELECT file_link, memo_no FROM memo_details WHERE memo_no = '$memo_no';";
     $fetch_proj_files_query = "SELECT review_link, ref_no FROM proj_files WHERE ref_no IN (SELECT ref_no FROM proj_details WHERE memo = '$memo_no');";
+    $fetch_contact_query = "SELECT contact FROM proj_details WHERE ref_no IN(SELECT ref_no FROM proj_details WHERE memo = '$memo_no');";
 
     // Put in corresponding receiver details
     // send to contact person
